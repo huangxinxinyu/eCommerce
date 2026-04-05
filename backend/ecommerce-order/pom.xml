@@ -14,7 +14,7 @@
     <artifactId>ecommerce-order</artifactId>
     <packaging>jar</packaging>
     <name>ecommerce-order</name>
-    <description>订单服务 - 订单创建、状态管理、自动关单</description>
+    <description>秒杀服务 - 订单处理</description>
 
     <dependencies>
         <!-- 公共模块 -->
@@ -64,8 +64,9 @@
 
         <!-- RocketMQ -->
         <dependency>
-            <groupId>com.alibaba.cloud</groupId>
-            <artifactId>spring-cloud-starter-alibaba-rocketmq</artifactId>
+            <groupId>org.apache.rocketmq</groupId>
+            <artifactId>rocketmq-spring-boot-starter</artifactId>
+            <version>2.2.3</version>
         </dependency>
     </dependencies>
 

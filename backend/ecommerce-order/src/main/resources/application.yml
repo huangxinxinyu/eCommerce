@@ -4,13 +4,11 @@ server:
 spring:
   application:
     name: order-service
+  config:
+    import: optional:nacos:${spring.cloud.nacos.server-addr}
   cloud:
     nacos:
-      discovery:
-        server-addr: localhost:8848
-      config:
-        server-addr: localhost:8848
-        file-extension: yaml
+      server-addr: localhost:8848
   datasource:
     url: jdbc:mysql://localhost:3306/ecommerce_order?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai
     username: root

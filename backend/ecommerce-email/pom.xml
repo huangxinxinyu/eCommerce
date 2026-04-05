@@ -14,7 +14,7 @@
     <artifactId>ecommerce-email</artifactId>
     <packaging>jar</packaging>
     <name>ecommerce-email</name>
-    <description>通知服务 - 模拟短信、邮件通知</description>
+    <description>秒杀服务 - 邮件通知</description>
 
     <dependencies>
         <!-- 公共模块 -->
@@ -43,8 +43,15 @@
 
         <!-- RocketMQ -->
         <dependency>
-            <groupId>com.alibaba.cloud</groupId>
-            <artifactId>spring-cloud-starter-alibaba-rocketmq</artifactId>
+            <groupId>org.apache.rocketmq</groupId>
+            <artifactId>rocketmq-spring-boot-starter</artifactId>
+            <version>2.2.3</version>
+        </dependency>
+
+        <!-- Mail -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-mail</artifactId>
         </dependency>
     </dependencies>
 

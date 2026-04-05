@@ -4,13 +4,11 @@ server:
 spring:
   application:
     name: email-service
+  config:
+    import: optional:nacos:${spring.cloud.nacos.server-addr}
   cloud:
     nacos:
-      discovery:
-        server-addr: localhost:8848
-      config:
-        server-addr: localhost:8848
-        file-extension: yaml
+      server-addr: localhost:8848
 
 dubbo:
   registry:

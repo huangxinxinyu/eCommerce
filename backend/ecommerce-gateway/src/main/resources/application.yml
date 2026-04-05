@@ -4,13 +4,18 @@ server:
 spring:
   application:
     name: gateway-service
+  main:
+    web-application-type: reactive
+  config:
+    import: optional:nacos:${spring.cloud.nacos.server-addr}
   cloud:
     nacos:
+      server-addr: localhost:8848
+    gateway:
       discovery:
-        server-addr: localhost:8848
-      config:
-        server-addr: localhost:8848
-        file-extension: yaml
+        locator:
+          enabled: true
+          lower-case-service-id: true
   data:
     redis:
       host: localhost
