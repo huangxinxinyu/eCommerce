@@ -1,0 +1,1 @@
+项目跑在wsl里，我们用docker compose来搭建本地分布式环境。
