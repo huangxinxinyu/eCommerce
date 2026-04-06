@@ -9,6 +9,9 @@ spring:
   cloud:
     nacos:
       server-addr: localhost:8848
+      config:
+        import-check:
+          enabled: false
 
 dubbo:
   registry:

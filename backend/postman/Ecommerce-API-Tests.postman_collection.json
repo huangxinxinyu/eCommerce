@@ -1,0 +1,398 @@
+{
+  "info": {
+    "name": "Ecommerce API Tests",
+    "description": "电商秒杀系统API测试集合 - 包含User Service和Store Service",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "User Service",
+      "item": [
+        {
+          "name": "1. 用户注册",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"username\": \"testuser001\",\n    \"email\": \"test001@example.com\",\n    \"phone\": \"13800138000\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/user/register",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "user", "register"]
+            },
+            "description": "测试用户注册接口"
+          },
+          "response": []
+        },
+        {
+          "name": "2. 用户登录",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"username\": \"testuser001\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/user/login",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "user", "login"]
+            },
+            "description": "测试用户登录接口"
+          },
+          "response": []
+        },
+        {
+          "name": "3. 获取用户信息",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:8080/api/user/info?userId=1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "user", "info"],
+              "query": [
+                {
+                  "key": "userId",
+                  "value": "1",
+                  "description": "用户ID"
+                }
+              ]
+            },
+            "description": "测试获取用户信息接口"
+          },
+          "response": []
+        },
+        {
+          "name": "4. 更新用户信息",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"userId\": \"1\",\n    \"email\": \"updated@example.com\",\n    \"phone\": \"13900139000\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/user/update",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "user", "update"]
+            },
+            "description": "测试更新用户信息接口"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Store Service",
+      "item": [
+        {
+          "name": "1. 初始化秒杀库存",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"productId\": 1,\n    \"stock\": 100\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/store/init/stock",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "store", "init", "stock"]
+            },
+            "description": "初始化商品库存到Redis（秒杀前准备）"
+          },
+          "response": []
+        },
+        {
+          "name": "2. 获取所有商品",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:8080/api/store/goods",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "store", "goods"]
+            },
+            "description": "获取所有商品列表"
+          },
+          "response": []
+        },
+        {
+          "name": "3. 获取商品详情",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:8080/api/store/goods/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "store", "goods", "1"]
+            },
+            "description": "获取指定商品详情"
+          },
+          "response": []
+        },
+        {
+          "name": "4. 秒杀下单（成功）",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"userId\": 1001,\n    \"productId\": 1,\n    \"quantity\": 1\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/store/seckill/order",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "store", "seckill", "order"]
+            },
+            "description": "用户参与秒杀（第一次购买，应该成功）"
+          },
+          "response": []
+        },
+        {
+          "name": "5. 秒杀下单（重复购买测试）",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"userId\": 1001,\n    \"productId\": 1,\n    \"quantity\": 1\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/store/seckill/order",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "store", "seckill", "order"]
+            },
+            "description": "同一用户重复秒杀（应该返回-1，表示已购买）"
+          },
+          "response": []
+        },
+        {
+          "name": "6. 秒杀下单（库存不足测试）",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"userId\": 2001,\n    \"productId\": 1,\n    \"quantity\": 999\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/store/seckill/order",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "store", "seckill", "order"]
+            },
+            "description": "秒杀库存不足场景（应该返回0，表示库存不足）"
+          },
+          "response": []
+        },
+        {
+          "name": "7. 回滚秒杀订单",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"userId\": 1001,\n    \"productId\": 1,\n    \"quantity\": 1\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/store/seckill/rollback",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "store", "seckill", "rollback"]
+            },
+            "description": "回滚秒杀订单（恢复库存和用户购买记录）"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Integration Tests",
+      "item": [
+        {
+          "name": "完整秒杀流程测试",
+          "item": [
+            {
+              "name": "Step 1: 注册用户",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "var jsonData = pm.response.json();",
+                      "if (jsonData.code === 200 && jsonData.data && jsonData.data.userId) {",
+                      "    pm.collectionVariables.set('testUserId', jsonData.data.userId);",
+                      "    console.log('用户注册成功，userId:', jsonData.data.userId);",
+                      "} else {",
+                      "    console.log('用户已存在或注册失败，使用默认userId');",
+                      "    pm.collectionVariables.set('testUserId', '100');",
+                      "}"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"username\": \"seckill_user\",\n    \"email\": \"seckill@example.com\",\n    \"phone\": \"13900139001\"\n}"
+                },
+                "url": {
+                  "raw": "http://localhost:8080/api/user/register",
+                  "protocol": "http",
+                  "host": ["localhost"],
+                  "port": "8080",
+                  "path": ["api", "user", "register"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Step 2: 初始化商品库存",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"productId\": 1,\n    \"stock\": 50\n}"
+                },
+                "url": {
+                  "raw": "http://localhost:8080/api/store/init/stock",
+                  "protocol": "http",
+                  "host": ["localhost"],
+                  "port": "8080",
+                  "path": ["api", "store", "init", "stock"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Step 3: 查看商品详情",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "http://localhost:8080/api/store/goods/1",
+                  "protocol": "http",
+                  "host": ["localhost"],
+                  "port": "8080",
+                  "path": ["api", "store", "goods", "1"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Step 4: 用户秒杀下单",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"userId\": 100,\n    \"productId\": 1,\n    \"quantity\": 1\n}"
+                },
+                "url": {
+                  "raw": "http://localhost:8080/api/store/seckill/order",
+                  "protocol": "http",
+                  "host": ["localhost"],
+                  "port": "8080",
+                  "path": ["api", "store", "seckill", "order"]
+                }
+              },
+              "response": []
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080"
+    },
+    {
+      "key": "testUserId",
+      "value": "100"
+    },
+    {
+      "key": "testProductId",
+      "value": "1"
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 .PHONY: help docker-up docker-down docker-logs docker-restart
-.PHONY: dev-gateway dev-store dev-order dev-pay dev-email dev-all
-.PHONY: stop-gateway stop-store stop-order stop-pay stop-email stop-all
+.PHONY: dev-gateway dev-store dev-user dev-order dev-pay dev-email dev-all
+.PHONY: stop-gateway stop-store stop-user stop-order stop-pay stop-email stop-all
 .PHONY: status
 
 # 颜色定义
@@ -24,6 +24,7 @@ help:
 	@echo "$(GREEN)开发运行 (前台显示日志):$(NC)"
 	@echo "  make dev-gateway     - 启动 Gateway (端口 8080)"
 	@echo "  make dev-store      - 启动 Store (端口 8081)"
+	@echo "  make dev-user       - 启动 User (端口 8085)"
 	@echo "  make dev-order      - 启动 Order (端口 8082)"
 	@echo "  make dev-pay        - 启动 Pay (端口 8083)"
 	@echo "  make dev-email      - 启动 Email (端口 8084)"
@@ -31,6 +32,7 @@ help:
 	@echo "$(GREEN)停止服务:$(NC)"
 	@echo "  make stop-gateway    - 停止 Gateway"
 	@echo "  make stop-store      - 停止 Store"
+	@echo "  make stop-user       - 停止 User"
 	@echo "  make stop-order      - 停止 Order"
 	@echo "  make stop-pay        - 停止 Pay"
 	@echo "  make stop-email      - 停止 Email"
@@ -78,6 +80,10 @@ dev-store:
 	@echo "$(GREEN)启动 Store...$(NC)"
 	cd ecommerce-store && mvn spring-boot:run
 
+dev-user:
+	@echo "$(GREEN)启动 User...$(NC)"
+	cd ecommerce-user && mvn spring-boot:run
+
 dev-order:
 	@echo "$(GREEN)启动 Order...$(NC)"
 	cd ecommerce-order && mvn spring-boot:run
@@ -101,6 +107,11 @@ stop-store:
 	@echo "$(YELLOW)停止 Store...$(NC)"
 	@pkill -f "ecommerce-store" || true
 	@echo "$(GREEN)Store 已停止$(NC)"
+
+stop-user:
+	@echo "$(YELLOW)停止 User...$(NC)"
+	@pkill -f "ecommerce-user" || true
+	@echo "$(GREEN)User 已停止$(NC)"
 
 stop-order:
 	@echo "$(YELLOW)停止 Order...$(NC)"

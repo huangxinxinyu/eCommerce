@@ -12,9 +12,8 @@ spring:
         server-addr: localhost:8848
         namespace: public
       config:
-        server-addr: localhost:8848
-        namespace: public
-        file-extension: yaml
+        import-check:
+          enabled: false
 
 server:
   port: 8082

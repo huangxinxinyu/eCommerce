@@ -1,35 +1,57 @@
-server:
-  port: 8080
-
 spring:
   application:
-    name: gateway-service
+    name: ecommerce-gateway
   main:
     web-application-type: reactive
-  config:
-    import: optional:nacos:${spring.cloud.nacos.server-addr}
   cloud:
     nacos:
-      server-addr: localhost:8848
+      discovery:
+        server-addr: localhost:8848
+        namespace: public
+      config:
+        import-check:
+          enabled: false
     gateway:
       discovery:
         locator:
           enabled: true
           lower-case-service-id: true
-  data:
-    redis:
-      host: localhost
-      port: 6379
+      routes:
+        - id: user-service
+          uri: lb://ecommerce-user
+          predicates:
+            - Path=/api/user/**
+          filters:
+            - StripPrefix=1
+        - id: store-service
+          uri: lb://ecommerce-store
+          predicates:
+            - Path=/api/store/**
+          filters:
+            - StripPrefix=1
+        - id: order-service
+          uri: lb://ecommerce-order
+          predicates:
+            - Path=/api/order/**
+          filters:
+            - StripPrefix=1
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOriginPatterns: "*"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+            allowedHeaders: "*"
+            allowCredentials: true
+            maxAge: 3600
 
-dubbo:
-  registry:
-    address: nacos://localhost:8848
-  protocol:
-    name: dubbo
-    port: 20880
+server:
+  port: 8080
 
-management:
-  endpoints:
-    web:
-      exposure:
-        include: "*"
+logging:
+  level:
+    org.springframework.cloud.gateway: debug

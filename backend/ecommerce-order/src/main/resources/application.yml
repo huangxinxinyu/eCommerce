@@ -1,44 +1,32 @@
-server:
-  port: 8082
-
 spring:
   application:
-    name: order-service
-  config:
-    import: optional:nacos:${spring.cloud.nacos.server-addr}
-  cloud:
-    nacos:
-      server-addr: localhost:8848
+    name: ecommerce-order
   datasource:
-    url: jdbc:mysql://localhost:3307/ecommerce_order?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3307/ecommerce_order?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
     username: root
     password: root
-  data:
-    redis:
-      host: localhost
-      port: 6379
+  cloud:
+    nacos:
+      discovery:
+        server-addr: localhost:8848
+        namespace: public
+      config:
+        import-check:
+          enabled: false
+  rocketmq:
+    name-server: localhost:9876
 
-dubbo:
-  registry:
-    address: nacos://localhost:8848
-  protocol:
-    name: dubbo
-    port: 20882
-
-rocketmq:
-  name-server: localhost:9876
-  consumer:
-    group: order-consumer-group
+server:
+  port: 8083
 
 mybatis-plus:
+  mapper-locations: classpath*:/mapper/**/*.xml
+  type-aliases-package: com.xinyu.ecommerce.order.entity
   configuration:
     map-underscore-to-camel-case: true
-  global-config:
-    db-config:
-      id-type: auto
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
 
-management:
-  endpoints:
-    web:
-      exposure:
-        include: "*"
+logging:
+  level:
+    com.xinyu.ecommerce: debug
