@@ -1,3 +1,6 @@
+server:
+  port: 8081
+
 spring:
   application:
     name: ecommerce-store
@@ -7,6 +10,8 @@ spring:
     username: root
     password: root
   cloud:
+    function:
+      definition: stockRollbackConsumer
     nacos:
       discovery:
         server-addr: localhost:8848
@@ -14,19 +19,26 @@ spring:
       config:
         import-check:
           enabled: false
+    stream:
+      rocketmq:
+        binder:
+          name-server: localhost:9876
+      bindings:
+        seckill-order-out-0:
+          destination: seckill-order
+          content-type: application/json
+        stockRollbackConsumer-in-0:
+          destination: stock-rollback
+          group: store-rollback-consumer-group  
+          content-type: application/json
+          consumer:
+            concurrency: 1
   data:
     redis:
       host: localhost
       port: 6379
       database: 0
       timeout: 3000ms
-rocketmq:
-  name-server: localhost:9876
-  producer:
-    group: store-producer-group
-
-server:
-  port: 8081
 
 mybatis-plus:
   mapper-locations: classpath*:/mapper/**/*.xml
@@ -38,3 +50,7 @@ mybatis-plus:
 logging:
   level:
     com.xinyu.ecommerce: debug
+    # 专门监控绑定过程
+    org.springframework.cloud.stream.binding.BindingService: DEBUG
+    # 监控 RocketMQ 具体的连接过程
+    com.alibaba.cloud.stream.binder.rocketmq: DEBUG

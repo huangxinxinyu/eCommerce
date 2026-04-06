@@ -12,6 +12,23 @@ spring:
       config:
         import-check:
           enabled: false
+    stream:
+      function:
+        definition: orderNotifyConsumer
+      rocketmq:
+        binder:
+          name-server: localhost:9876
+        bindings:
+          orderNotifyConsumer-in-0:
+            consumer:
+              group: email-notify-consumer-group
+              topic: order-notify
+      bindings:
+        orderNotifyConsumer-in-0:
+          destination: order-notify
+          content-type: application/json
+          consumer:
+            concurrency: 1
 
 dubbo:
   registry:
@@ -19,11 +36,6 @@ dubbo:
   protocol:
     name: dubbo
     port: 20884
-
-rocketmq:
-  name-server: localhost:9876
-  consumer:
-    group: email-consumer-group
 
 management:
   endpoints:

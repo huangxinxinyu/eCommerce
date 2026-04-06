@@ -48,8 +48,9 @@ public class StoreController {
         Long userId = Long.valueOf(request.get("userId").toString());
         Long productId = Long.valueOf(request.get("productId").toString());
         Integer quantity = Integer.valueOf(request.get("quantity").toString());
+        String orderNo = "MANUAL" + System.currentTimeMillis();
 
-        boolean success = seckillService.rollback(userId, productId, quantity);
+        boolean success = seckillService.rollback(orderNo, userId, productId, quantity);
         return Result.success(success);
     }
 

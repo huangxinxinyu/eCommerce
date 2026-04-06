@@ -12,6 +12,14 @@ spring:
       config:
         import-check:
           enabled: false
+    stream:
+      rocketmq:
+        binder:
+          name-server: localhost:9876
+      bindings:
+        paySuccess-out-0:
+          destination: pay-success
+          content-type: application/json
   datasource:
     url: jdbc:mysql://localhost:3307/ecommerce_pay?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai
     username: root
@@ -23,13 +31,6 @@ dubbo:
   protocol:
     name: dubbo
     port: 20883
-
-rocketmq:
-  name-server: localhost:9876
-  producer:
-    group: pay-producer-group
-  consumer:
-    group: pay-consumer-group
 
 mybatis-plus:
   configuration:

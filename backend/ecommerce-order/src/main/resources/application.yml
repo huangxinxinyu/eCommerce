@@ -1,3 +1,6 @@
+server:
+  port: 8083
+
 spring:
   application:
     name: ecommerce-order
@@ -7,6 +10,8 @@ spring:
     username: root
     password: root
   cloud:
+    function:
+      definition: orderMqConsumer;paySuccessConsumer;orderDelayConsumer
     nacos:
       discovery:
         server-addr: localhost:8848
@@ -14,11 +19,42 @@ spring:
       config:
         import-check:
           enabled: false
-  rocketmq:
-    name-server: localhost:9876
-
-server:
-  port: 8083
+    stream:
+      rocketmq:
+        binder:
+          name-server: localhost:9876
+      bindings:
+        orderMqConsumer-in-0:
+          destination: seckill-order
+          group: order-consumer-group
+          content-type: application/json
+          consumer:
+            concurrency: 1
+        paySuccessConsumer-in-0:
+          destination: pay-success
+          group: order-pay-consumer-group
+          content-type: application/json
+          consumer:
+            concurrency: 1
+        orderDelayConsumer-in-0:
+          destination: order-delay
+          group: order-delay-consumer-group
+          content-type: application/json
+          consumer:
+            concurrency: 1
+        orderNotifyConsumer-in-0:
+          destination: order-notify
+          group: email-notify-consumer-group
+          content-type: application/json
+        orderDelay-out-0:
+          destination: order-delay
+          content-type: application/json
+        stockRollback-out-0:
+          destination: stock-rollback
+          content-type: application/json
+        orderNotify-out-0:
+          destination: order-notify
+          content-type: application/json
 
 mybatis-plus:
   mapper-locations: classpath*:/mapper/**/*.xml
