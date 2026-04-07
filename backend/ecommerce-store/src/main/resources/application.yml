@@ -11,7 +11,7 @@ spring:
     password: root
   cloud:
     function:
-      definition: stockRollbackConsumer
+      definition: stockRollbackConsumer;payConfirmedConsumer
     nacos:
       discovery:
         server-addr: localhost:8848
@@ -29,7 +29,13 @@ spring:
           content-type: application/json
         stockRollbackConsumer-in-0:
           destination: stock-rollback
-          group: store-rollback-consumer-group  
+          group: store-rollback-consumer-group
+          content-type: application/json
+          consumer:
+            concurrency: 1
+        payConfirmedConsumer-in-0:
+          destination: pay-confirmed
+          group: store-pay-consumer-group
           content-type: application/json
           consumer:
             concurrency: 1
@@ -50,7 +56,3 @@ mybatis-plus:
 logging:
   level:
     com.xinyu.ecommerce: debug
-    # 专门监控绑定过程
-    org.springframework.cloud.stream.binding.BindingService: DEBUG
-    # 监控 RocketMQ 具体的连接过程
-    com.alibaba.cloud.stream.binder.rocketmq: DEBUG

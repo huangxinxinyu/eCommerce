@@ -52,6 +52,9 @@ spring:
         stockRollback-out-0:
           destination: stock-rollback
           content-type: application/json
+        payConfirmed-out-0:
+          destination: pay-confirmed
+          content-type: application/json
         orderNotify-out-0:
           destination: order-notify
           content-type: application/json

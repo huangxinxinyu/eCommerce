@@ -1,5 +1,6 @@
 package com.xinyu.ecommerce.store.mq;
 
+import com.xinyu.ecommerce.common.message.PayConfirmedMessage;
 import com.xinyu.ecommerce.common.message.StockRollbackMessage;
 import com.xinyu.ecommerce.store.service.SeckillService;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +35,26 @@ public class ConsumerConfig {
                 }
             } catch (Exception e) {
                 log.error("库存恢复异常: orderNo={}", message.getOrderNo(), e);
+                throw e;
+            }
+        };
+    }
+
+    @Bean
+    public Consumer<PayConfirmedMessage> payConfirmedConsumer() {
+        return message -> {
+            log.info("收到支付确认消息: orderNo={}, productId={}, quantity={}",
+                    message.getOrderNo(), message.getProductId(), message.getQuantity());
+            try {
+                boolean success = seckillService.handlePayConfirmed(message);
+                if (success) {
+                    log.info("支付确认处理成功: orderNo={}", message.getOrderNo());
+                } else {
+                    log.error("支付确认处理失败: orderNo={}", message.getOrderNo());
+                    throw new RuntimeException("支付确认处理失败");
+                }
+            } catch (Exception e) {
+                log.error("支付确认处理异常: orderNo={}", message.getOrderNo(), e);
                 throw e;
             }
         };

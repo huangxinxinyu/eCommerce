@@ -7,9 +7,11 @@ import com.xinyu.ecommerce.order.entity.Order;
 import com.xinyu.ecommerce.order.mapper.OrderMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.rocketmq.common.message.MessageConst;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.cloud.stream.function.StreamBridge;
+import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -86,6 +88,7 @@ public class OrderService {
 
             log.info("订单支付成功: orderNo={}, payNo={}", message.getOrderNo(), message.getPayNo());
 
+            sendPayConfirmedMessage(order);
             sendPayNotifyMessage(order);
 
         } catch (InterruptedException e) {
@@ -143,8 +146,12 @@ public class OrderService {
         msg.setTimestamp(System.currentTimeMillis() + ORDER_EXPIRE_MINUTES * 60 * 1000);
 
         try {
-            streamBridge.send("orderDelay-out-0", msg);
-            log.info("延迟关单消息发送成功: orderNo={}", orderNo);
+            // RocketMQ 延迟消息: 通过 header 设置延迟级别
+            // level 15 = 20分钟 (适用于15分钟过期的订单)
+            streamBridge.send("orderDelay-out-0", MessageBuilder.withPayload(msg)
+                    .setHeader(MessageConst.PROPERTY_DELAY_TIME_LEVEL, 15)
+                    .build());
+            log.info("延迟关单消息发送成功: orderNo={}, delayLevel=15(20分钟)", orderNo);
         } catch (Exception e) {
             log.error("延迟关单消息发送失败: orderNo={}", orderNo, e);
         }
@@ -194,6 +201,22 @@ public class OrderService {
             log.info("订单关闭通知消息发送成功: orderNo={}", order.getOrderNo());
         } catch (Exception e) {
             log.error("订单关闭通知消息发送失败: orderNo={}", order.getOrderNo(), e);
+        }
+    }
+
+    private void sendPayConfirmedMessage(Order order) {
+        PayConfirmedMessage msg = new PayConfirmedMessage();
+        msg.setOrderNo(order.getOrderNo());
+        msg.setProductId(order.getProductId());
+        msg.setQuantity(order.getQuantity());
+        msg.setTimestamp(System.currentTimeMillis());
+
+        try {
+            streamBridge.send("payConfirmed-out-0", msg);
+            log.info("支付确认消息发送成功: orderNo={}, productId={}, quantity={}",
+                    order.getOrderNo(), order.getProductId(), order.getQuantity());
+        } catch (Exception e) {
+            log.error("支付确认消息发送失败: orderNo={}", order.getOrderNo(), e);
         }
     }
 }

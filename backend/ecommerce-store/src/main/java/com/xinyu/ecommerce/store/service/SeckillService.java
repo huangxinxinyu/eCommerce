@@ -1,14 +1,16 @@
 package com.xinyu.ecommerce.store.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.xinyu.ecommerce.common.constant.MqConstants;
 import com.xinyu.ecommerce.common.message.OrderCreateMessage;
+import com.xinyu.ecommerce.common.message.PayConfirmedMessage;
 import com.xinyu.ecommerce.store.entity.Product;
 import com.xinyu.ecommerce.store.mapper.ProductMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cloud.stream.function.StreamBridge;
-import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Service;
 
@@ -18,14 +20,14 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 @Service
 public class SeckillService {
-    private final RedisTemplate<String, Object> redisTemplate;
+    private final StringRedisTemplate redisTemplate;
     private final DefaultRedisScript<Long> seckillScript;
     private final DefaultRedisScript<Long> rollbackScript;
     private final ProductMapper productMapper;
     private final StreamBridge streamBridge;
 
     public SeckillService(
-            RedisTemplate<String, Object> redisTemplate,
+            StringRedisTemplate redisTemplate,
             @Qualifier("seckillScript") DefaultRedisScript<Long> seckillScript,
             @Qualifier("rollbackScript") DefaultRedisScript<Long> rollbackScript,
             ProductMapper productMapper,
@@ -39,16 +41,17 @@ public class SeckillService {
 
     private static final String STOCK_KEY_PREFIX = "stock:seckill:";
     private static final String USER_BOUGHT_KEY_PREFIX = "user:bought:";
+    private static final String PAY_CONFIRMED_KEY_PREFIX = "stock:confirmed:";
 
     public void initStock(Long productId, Integer stock) {
         String stockKey = STOCK_KEY_PREFIX + productId;
-        redisTemplate.opsForValue().set(stockKey, stock);
+        redisTemplate.opsForValue().set(stockKey, String.valueOf(stock));
         log.info("初始化库存: productId={}, stock={}", productId, stock);
     }
 
     public void warmUpStockFromDb(Long productId, Integer stock) {
         String stockKey = STOCK_KEY_PREFIX + productId;
-        redisTemplate.opsForValue().set(stockKey, stock);
+        redisTemplate.opsForValue().set(stockKey, String.valueOf(stock));
         log.info("从数据库回源预热库存: productId={}, stock={}", productId, stock);
     }
 
@@ -156,5 +159,38 @@ public class SeckillService {
 
     private String generateOrderNo() {
         return "SK" + System.currentTimeMillis() + String.format("%06d", (int) (Math.random() * 1000000));
+    }
+
+    public boolean handlePayConfirmed(PayConfirmedMessage message) {
+        String orderNo = message.getOrderNo();
+        Long productId = message.getProductId();
+        Integer quantity = message.getQuantity();
+
+        String confirmedKey = PAY_CONFIRMED_KEY_PREFIX + orderNo;
+
+        Boolean alreadyConfirmed = redisTemplate.hasKey(confirmedKey);
+        if (Boolean.TRUE.equals(alreadyConfirmed)) {
+            log.info("支付确认已处理过（幂等），跳过: orderNo={}", orderNo);
+            return true;
+        }
+
+        LambdaUpdateWrapper<Product> wrapper = new LambdaUpdateWrapper<>();
+        wrapper.eq(Product::getId, productId)
+                .ge(Product::getStock, quantity)
+                .setSql("stock = stock - " + quantity)
+                .setSql("version = version + 1");
+
+        int rows = productMapper.update(null, wrapper);
+
+        if (rows > 0) {
+            redisTemplate.opsForValue().set(confirmedKey, "1", 24, TimeUnit.HOURS);
+            log.info("MySQL 库存扣减成功: orderNo={}, productId={}, quantity={}, rows={}",
+                    orderNo, productId, quantity, rows);
+            return true;
+        } else {
+            log.warn("MySQL 库存扣减失败（库存不足或并发冲突）: orderNo={}, productId={}, quantity={}",
+                    orderNo, productId, quantity);
+            return false;
+        }
     }
 }
