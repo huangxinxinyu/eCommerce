@@ -25,7 +25,7 @@ public class StoreController {
     }
 
     @GetMapping("/goods/{id}")
-    public Result<Product> getGoodsDetail(@PathVariable Long id) {
+    public Result<Product> getGoodsDetail(@PathVariable("id") Long id) {
         Product product = productService.getProductById(id);
         return Result.success(product);
     }

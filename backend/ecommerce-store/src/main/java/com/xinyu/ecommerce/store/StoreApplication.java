@@ -3,9 +3,10 @@ package com.xinyu.ecommerce.store;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.jackson.JacksonAutoConfiguration;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 
-@SpringBootApplication(scanBasePackages = {"com.xinyu.ecommerce"})
+@SpringBootApplication(scanBasePackages = {"com.xinyu.ecommerce"}, exclude = {JacksonAutoConfiguration.class})
 @EnableDiscoveryClient
 @MapperScan("com.xinyu.ecommerce.store.mapper")
 public class StoreApplication {
